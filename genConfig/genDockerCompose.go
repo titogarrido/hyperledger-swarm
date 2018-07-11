@@ -56,9 +56,10 @@ type RestartPolicy struct {
   Window      time.Duration `yaml:"window,omitempty"`
 }
 
-var TAG = `:x86_64-1.0.2`
-
-// var TAG = `:latest`
+var TAG = `:x86_64-1.1.0`
+var SUB_TAG = `:x86_64-0.4.6`
+//var TAG = `:1.1.0`
+//var SUB_TAG = `:0.4.6`
 
 func GenDockerCompose(serviceName string, domainName string, networkName string, num ...int) (*DockerCompose, error) {
   var dockerCompose = &DockerCompose{}
@@ -115,7 +116,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service.Networks[networkName] = &ServNet{
         Aliases: []string{serviceHost + "." + domainName},
       }
-      service.Image = "hyperledger/fabric-zookeeper" + TAG
+      service.Image = "ibmblockchain/fabric-zookeeper" + SUB_TAG
       var zookeeperArray []string
       for j := 0; j < total; j++ {
         zookeeperArray = append(zookeeperArray, "server."+strconv.Itoa(j+1)+"=zookeeper"+strconv.Itoa(j)+":2888:3888")
@@ -137,7 +138,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service.Networks[networkName] = &ServNet{
         Aliases: []string{serviceHost + "." + domainName},
       }
-      service.Image = "hyperledger/fabric-kafka" + TAG
+      service.Image = "ibmblockchain/fabric-kafka" + SUB_TAG
       var zookeeperArray []string
       for j := 0; j < 3; j++ { // 3 is number of zookeeper nodes
         zookeeperArray = append(zookeeperArray, "zookeeper"+strconv.Itoa(j)+":2181")
@@ -164,7 +165,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service.Networks[networkName] = &ServNet{
         Aliases: []string{serviceHost + "." + domainName},
       }
-      service.Image = "hyperledger/fabric-orderer" + TAG
+      service.Image = "ibmblockchain/fabric-orderer" + TAG
       service.Environment = make([]string, 14)
       service.Environment[0] = "CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=" + networkName
       service.Environment[1] = "ORDERER_GENERAL_LOGLEVEL=debug"
@@ -201,7 +202,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service.Networks[networkName] = &ServNet{
         Aliases: []string{serviceName + "_peerOrg" + orgId},
       }
-      service.Image = "hyperledger/fabric-ca" + TAG
+      service.Image = "ibmblockchain/fabric-ca" + SUB_TAG
       service.Environment = make([]string, 5)
       service.Environment[0] = "FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server"
       service.Environment[1] = "FABRIC_CA_SERVER_CA_NAME=ca-org" + orgId
@@ -219,7 +220,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service = &Service{
         Hostname: serviceHost + "." + domainName,
       }
-      service.Image = "hyperledger/fabric-couchdb" + TAG
+      service.Image = "ibmblockchain/fabric-couchdb" + SUB_TAG
       service.Networks = make(map[string]*ServNet, 1)
       service.Networks[networkName] = &ServNet{
         Aliases: []string{serviceHost},
@@ -235,7 +236,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
       service = &Service{
         Hostname: hostName,
       }
-      service.Image = "hyperledger/fabric-peer" + TAG
+      service.Image = "ibmblockchain/fabric-peer" + TAG
       service.Networks = make(map[string]*ServNet, 1)
       service.Networks[networkName] = &ServNet{
         Aliases: []string{hostName},
@@ -272,7 +273,7 @@ func GenService(dockerCompose *DockerCompose, domainName string, serviceName str
     case "cli":
       serviceHost = "cli"
       service = &Service{}
-      service.Image = "hyperledger/fabric-tools" + TAG
+      service.Image = "ibmblockchain/fabric-tools" + TAG
       service.Networks = make(map[string]*ServNet, 1)
       service.Networks[networkName] = &ServNet{
         Aliases: []string{"cli"},
