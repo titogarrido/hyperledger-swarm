@@ -3,7 +3,7 @@
 * clone this git
 ```
   cd first-network
-  git clone https://github.com/tubackkhoa/hyperledger-swarm.git
+  git clone https://github.com/titogarrido/hyperledger-swarm.git
 ```
 
 # portainer
@@ -17,14 +17,8 @@ cd bin
 ./build.sh
 ```
 
-# build admin 
-```sh
-cd admin
-./build.sh
-```
-
 This repository is for deploying Hyperledger Fabric on Swarm cluster easily.
-- Supported version : 1.0.0 GA and above (1.0.1 currently)
+- Supported version : 1.1.0 
 * You can specify number of each component. Supported components are:
   - Number of Organizations (CA will be one per a Organization)
   - Number of Peer per a Organization
@@ -88,13 +82,13 @@ This repository is for deploying Hyperledger Fabric on Swarm cluster easily.
     cd /nfs-share
     git clone https://github.com/hyperledger/fabric-samples.git
     cd fabric-samples
-    curl -sSL https://goo.gl/iX9dek | bash
+    curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/release-1.1/scripts/bootstrap.sh | bash
 ```
 
 * I recommend you get ccenv image on all host. Fabric does not pull the latest ccenv image for you.
     so on ALL host,
   ```
-    docker pull hyperledger/fabric-ccenv:x86_64-1.0.0
+    docker pull hyperledger/fabric-ccenv:x86_64-1.1.0
   ```
 
 ### Generate the artifacts
@@ -106,7 +100,7 @@ This repository is for deploying Hyperledger Fabric on Swarm cluster easily.
 ```
 * generate config file for your own configuration. For example,
 ```
-  ./genConfig -domain sdchoi.com -Kafka 3 -Orderer 5 -Zookeeper 3 -Orgs 4 -Peer 4
+  ./genConfig -domain example.com -Kafka 3 -Orderer 5 -Zookeeper 3 -Orgs 4 -Peer 4
 ```
   For information,
 ```
@@ -118,7 +112,7 @@ This repository is for deploying Hyperledger Fabric on Swarm cluster easily.
 ```
   For example,
 ```
-  ./generateArtifacts.sh -c sdchannel -d sdchoi.com -o 4
+  ./generateArtifacts.sh -c sdchannel -d example.com -o 4
 ```
 * share two directories (channel-artifacts, crypto-config) among all hosts with same path
 
@@ -167,11 +161,11 @@ docker stack deploy -c admin/api-server.yaml hyperledger-admin-api
 #### Examples
 * Generate Hyperledger Fabric config
 ```
-  ./genConfig -domain sdchoi.com -Kafka 3 -Orderer 2 -Zookeeper 3 -Orgs 2 -Peer 2
+  ./genConfig -domain example.com -Kafka 3 -Orderer 2 -Zookeeper 3 -Orgs 2 -Peer 2
 ```
 * Generate artifacts
 ```
-  ./generateArtifacts.sh -c sdchannel -d sdchoi.com -o 2
+  ./generateArtifacts.sh -c sdchannel -d example.com -o 2
 ```
 * Deploy Hyperledger Fabric
 ```
@@ -191,7 +185,7 @@ docker stack deploy -c admin/api-server.yaml hyperledger-admin-api
 ```
   export CHANNEL_NAME=sdchannel
   export ORG=hottab.com
-  peer channel create -o orderer0.sdchoi.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/sdchoi.com/orderers/orderer0.$ORG/msp/tlscacerts/tlsca.$ORG-cert.pem
+  peer channel create -o orderer0.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer0.$ORG/msp/tlscacerts/tlsca.$ORG-cert.pem
 ```
 * Join a channel
 ```
@@ -201,12 +195,12 @@ docker stack deploy -c admin/api-server.yaml hyperledger-admin-api
 * Install & Initiate Chaincode
 ```
   peer chaincode install -n mycc -v 1.0 -p github.com/hyperledger/fabric/examples/chaincode/go/chaincode_example02
-  peer chaincode instantiate -o orderer0.sdchoi.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/sdchoi.com/orderers/orderer0.sdchoi.com/msp/tlscacerts/tlsca.sdchoi.com-cert.pem -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
+  peer chaincode instantiate -o orderer0.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer0.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
 ```
 * Query & Invoke Chaincode
 ```
   peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["query","a"]}'
-  peer chaincode invoke -o orderer1.sdchoi.com:7050  --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/sdchoi.com/orderers/orderer1.sdchoi.com/msp/tlscacerts/tlsca.sdchoi.com-cert.pem  -C $CHANNEL_NAME -n mycc -c '{"Args":["invoke","a","b","10"]}'
+  peer chaincode invoke -o orderer1.example.com:7050  --tls $CORE_PEER_TLS_ENABLED --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer1.example.com/msp/tlscacerts/tlsca.example.com-cert.pem  -C $CHANNEL_NAME -n mycc -c '{"Args":["invoke","a","b","10"]}'
   peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["query","a"]}'
   peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["query","b"]}'
 ```
